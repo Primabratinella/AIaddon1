@@ -2,26 +2,35 @@
 <html>
   <head>
     <meta charset="UTF-8" />
+
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
     <script src="https://unpkg.com/typewriter-effect@latest/dist/core.js"></script>
+
     <link href="src/style.css" rel="stylesheet" type="text/css" />
+
     <title>Joke Generator</title>
-
-    <style>
-        button {
-            background: purple;
-            color: white;
-            border: 0;
-            padding: 15px 20px;
-            border-radius: 10px;
-
-        }
-    </style>
   </head>
 
   <body>
+
+    <h1>😂 Joke Generator</h1>
+
+    <select id="category">
+      <option value="funny">😂 Random</option>
+      <option value="dad">👨 Dad Jokes</option>
+      <option value="puns">🎯 Puns</option>
+    </select>
+
     <button id="clickjokebutton">Tell me joke</button>
-    <div id="joke"><div>
+
+    <div id="joke">Click the button to start 😄</div>
+
+    <button id="copyBtn">📋 Copy Joke</button>
+
+    <audio id="laugh-sound" src="https://www.soundjay.com/human/laugh-1.mp3" preload="auto"></audio>
+
+    <!-- ALWAYS load JS LAST -->
     <script src="src/index.js"></script>
+
   </body>
 </html>

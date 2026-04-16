@@ -1,30 +1,90 @@
+function isSafe(joke) {
+  const bannedWords = [
+    "stupid",
+    "hate",
+    "kill",
+    "drunk",
+    "beer",
+    "sex",
+    "gun"
+  ];
+
+  return !bannedWords.some(word =>
+    joke.toLowerCase().includes(word)
+  );
+}
+
+let jokeHistory = JSON.parse(localStorage.getItem("jokeHistory")) || [];
+
+document
+  .getElementById("clickjokebutton")
+  .addEventListener("click", clickJoke);
+
 function displayJoke(response) {
-    console.log(response.data.answer);
+    let data = response.data;
+  
+    let joke = "";
+  
+    if (data.joke) {
+      joke = data.joke;
+    } else {
+      joke = `${data.setup} 😂 ${data.delivery}`;
+    }
+  
+    // 🛑 SAFETY CHECK
+    if (!isSafe(joke)) {
+      console.log("Unsafe joke filtered — retrying...");
+      clickJoke(); // try again
+      return;
+    }
+  
+    document.querySelector("#joke").innerHTML = "";
   
     new Typewriter("#joke", {
-      strings: response.data.answer,
+      strings: joke,
       autoStart: true,
-      cursor: null,
-      delay: 30,
+      cursor: "✨",
+      delay: 25,
     });
   }
-  function clickJoke(event) {
-    event.preventDefault();
-    let apiKey = "a08f0oc3b4t11e51a8dbab6fef7e5923";
-    let context = "You are an AI assistant that tells a short, witty and funny jokes. Your jokes are different everytime the button is clicked.";
-    let prompt =
-      "Generate new short, witty and funny jokes. Generate jokes one at a time. Don't repeat the jokes. Provide the answer in plain text.";
-    let apiUrl = `https://api.shecodes.io/ai/v1/generate?prompt=${prompt}&context=${context}&key=${apiKey}`;
+
+function clickJoke() {
+  document.querySelector("#joke").innerHTML =
+    "<div class='loader'></div>";
+
+
+  let url = "https://v2.jokeapi.dev/joke/Any?safe-mode&type=single,twopart";
+
+  axios.get(url).then(displayJoke).catch((error) => {
+    console.log(error);
+    document.querySelector("#joke").innerHTML =
+      "Oops 😬 Try again!";
+  });
+}
+  let url = "https://v2.jokeapi.dev/joke/Any?safe-mode&type=single,twopart";
   
-    let jokeElement = document.querySelector("#joke");
-    jokeElement.innerHTML = "Generating a joke for you. Please wait..";
-  
-    console.log("called the AI api");
-    axios.get(apiUrl).then(displayJoke);
-  }
-  
-  let clickJokeButton = document.querySelector("#clickjokebutton");
-  clickJokeButton.addEventListener("click", clickJoke);
- 
- 
-  
+  document.querySelector("#joke").innerHTML =
+    "<div class='loader'></div>";
+
+  axios
+    .get(apiUrl)
+    .then(displayJoke)
+    .catch((err) => {
+      console.log(err);
+      document.querySelector("#joke").innerHTML =
+        "Oops 😬 try again!";
+    });
+}
+
+// COPY BUTTON
+document.getElementById("copyBtn").addEventListener("click", () => {
+  let jokeText = document.querySelector("#joke").innerText;
+
+  navigator.clipboard.writeText(jokeText).then(() => {
+    alert("Copied 😂");
+  });
+});
+
+document
+  .getElementById("clickjokebutton")
+  .addEventListener("click", clickJoke);
