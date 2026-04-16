@@ -14,65 +14,52 @@ function isSafe(joke) {
   );
 }
 
-let jokeHistory = JSON.parse(localStorage.getItem("jokeHistory")) || [];
-
 document
   .getElementById("clickjokebutton")
   .addEventListener("click", clickJoke);
 
 function displayJoke(response) {
-    let data = response.data;
-  
-    let joke = "";
-  
-    if (data.joke) {
-      joke = data.joke;
-    } else {
-      joke = `${data.setup} 😂 ${data.delivery}`;
-    }
-  
-    // 🛑 SAFETY CHECK
-    if (!isSafe(joke)) {
-      console.log("Unsafe joke filtered — retrying...");
-      clickJoke(); // try again
-      return;
-    }
-  
-    document.querySelector("#joke").innerHTML = "";
-  
-    new Typewriter("#joke", {
-      strings: joke,
-      autoStart: true,
-      cursor: "✨",
-      delay: 25,
-    });
+  let data = response.data;
+
+  let joke = "";
+
+  if (data.joke) {
+    joke = data.joke;
+  } else {
+    joke = `${data.setup} 😂 ${data.delivery}`;
   }
+
+  // safety filter
+  if (!isSafe(joke)) {
+    console.log("Unsafe joke filtered — retrying...");
+    clickJoke();
+    return;
+  }
+
+  document.querySelector("#joke").innerHTML = "";
+
+  new Typewriter("#joke", {
+    strings: joke,
+    autoStart: true,
+    cursor: "✨",
+    delay: 25,
+  });
+}
 
 function clickJoke() {
   document.querySelector("#joke").innerHTML =
     "<div class='loader'></div>";
 
-
-  let url = "https://v2.jokeapi.dev/joke/Any?safe-mode&type=single,twopart";
-
-  axios.get(url).then(displayJoke).catch((error) => {
-    console.log(error);
-    document.querySelector("#joke").innerHTML =
-      "Oops 😬 Try again!";
-  });
-}
-  let url = "https://v2.jokeapi.dev/joke/Any?safe-mode&type=single,twopart";
-  
-  document.querySelector("#joke").innerHTML =
-    "<div class='loader'></div>";
+  const url =
+    "https://v2.jokeapi.dev/joke/Any?safe-mode&type=single,twopart";
 
   axios
-    .get(apiUrl)
+    .get(url)
     .then(displayJoke)
-    .catch((err) => {
-      console.log(err);
+    .catch((error) => {
+      console.log(error);
       document.querySelector("#joke").innerHTML =
-        "Oops 😬 try again!";
+        "Oops 😬 Try again!";
     });
 }
 
@@ -84,7 +71,3 @@ document.getElementById("copyBtn").addEventListener("click", () => {
     alert("Copied 😂");
   });
 });
-
-document
-  .getElementById("clickjokebutton")
-  .addEventListener("click", clickJoke);

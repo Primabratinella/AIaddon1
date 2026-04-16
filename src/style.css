@@ -9,16 +9,23 @@
   
   body {
     font-family: Arial, Helvetica, sans-serif;
-    background: linear-gradient(135deg, #6a11cb, #2575fc);
     min-height: 100vh;
   
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
+    gap: 20px;
   
     padding: 20px;
-  }
   
+    /* CLEAN PREMIUM BACKGROUND */
+    background: linear-gradient(
+      135deg,
+      #f7f7fb 0%,
+      #eef1f6 100%
+    );
+  }
   /* =========================
      APP CONTAINER LOOK
   ========================= */
@@ -26,7 +33,11 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(108, 82, 82, 0.25);
+    background: radial-gradient(
+      circle at top,
+      rgba(99, 102, 241, 0.08),
+      transparent 60%
+    );
     z-index: 0;
     pointer-events: none;
   }
@@ -60,26 +71,26 @@
      BUTTON STYLING
   ========================= */
   button {
-    background: white;
-    color: hsla(189, 84%, 24%, 0.715);
-    border: none;
+    background: #111827;
+    color: white;
   
+    border: none;
     padding: 14px 22px;
     border-radius: 12px;
   
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 15px;
+    font-weight: 600;
   
     cursor: pointer;
   
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
   
     transition: all 0.25s ease;
   }
   
   button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    background: #1f2937;
+    transform: translateY(-2px);
   }
   
   button:active {
@@ -90,10 +101,12 @@
      JOKE DISPLAY BOX
   ========================= */
   #joke {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,0,0,0.06);
   
-    color: white;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(14px);
+  
+    color: #1f2937;
   
     padding: 25px 20px;
     border-radius: 16px;
@@ -104,7 +117,7 @@
     font-size: 18px;
     line-height: 1.6;
   
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
   
     min-height: 100px;
   
@@ -142,16 +155,18 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+  
   select {
     padding: 10px 14px;
     border-radius: 10px;
-    border: none;
+  
+    border: 1px solid rgba(0,0,0,0.08);
+    background: white;
+  
     font-size: 14px;
-    cursor: pointer;
   
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
   }
-  
   /* group spacing */
   select, button {
     min-width: 200px;
