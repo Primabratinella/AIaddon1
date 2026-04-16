@@ -8,11 +8,16 @@
   
   /* PAGE */
   body {
-    background: #0f172a;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    min-height: 100vh;
+    margin: 0;
+  
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+  
+    padding: 20px;
   }
   
   /* APP WRAPPER */
@@ -33,10 +38,10 @@
   
   /* TOP BAR */
   .top-bar {
-    padding: 15px;
+    padding: 15px 16px;
     background: #1f2937;
     color: white;
-  
+    gap: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -98,9 +103,9 @@
   }
   
   /* BUTTONS */
-  button {
-    flex: 1;
-    padding: 10px;
+  .input-bar button {
+    flex: 0;
+    padding: 10px 14px;
     border: none;
     border-radius: 12px;
   
@@ -113,7 +118,43 @@
     transition: 0.2s;
   }
   
-  button:hover {
+  .input-bar button:hover {
     background: #2563eb;
     transform: translateY(-2px);
+  }
+
+  /* =========================
+   DARK MODE (LEVEL 2)
+========================= */
+
+body.dark {
+    background: #0a0f1c;
+  }
+  
+  body.dark .chat-app {
+    background: #0b1220;
+  }
+  
+  body.dark .top-bar,
+  body.dark .input-bar {
+    background: #111827;
+  }
+  
+  body.dark .bot {
+    background: #1f2937;
+  }
+  
+  body.dark select {
+    background: #111827;
+    color: white;
+  }
+  
+  body.dark button {
+    background: #2563eb;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }

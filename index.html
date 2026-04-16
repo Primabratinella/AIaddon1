@@ -9,21 +9,27 @@
     <link href="src/style.css" rel="stylesheet" type="text/css" />
 
     <title>Are You Kidding Me</title>
+    
   </head>
 
   <body>
 
-    <div class="chat-app">
-  
-      <div class="top-bar">
-        <h1>😂 Joke AI</h1>
-  
+    <div class="top-bar">
+
+      <h1>😂 Joke AI</h1>
+    
+      <div class="controls">
+        
         <select id="category">
           <option value="funny">Random</option>
           <option value="dad">Dad Jokes</option>
           <option value="puns">Puns</option>
         </select>
+    
+        <button id="themeToggle">🌙</button>
       </div>
+    
+    </div>
   
       <!-- CHAT AREA -->
       <div id="chatbox">
@@ -34,10 +40,8 @@
   
       <!-- INPUT AREA -->
       <div class="input-bar">
-  
-        <button id="clickjokebutton">Send</button>
+        <button id="clickjokebutton">Tell me joke</button>
         <button id="copyBtn">Copy</button>
-  
       </div>
   
       <audio id="laugh-sound"

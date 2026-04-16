@@ -6,8 +6,7 @@ function isSafe(joke) {
     "drunk",
     "beer",
     "sex",
-    "gun",
-    "shoot"
+    "gun"
   ];
 
   return !bannedWords.some(word =>
@@ -15,10 +14,19 @@ function isSafe(joke) {
   );
 }
 
+/* =========================
+   MEMORY (NO REPEATS)
+========================= */
+let jokeHistory =
+  JSON.parse(localStorage.getItem("jokeHistory")) || [];
+
 document
   .getElementById("clickjokebutton")
   .addEventListener("click", clickJoke);
 
+/* =========================
+   CHAT MESSAGE FUNCTION
+========================= */
 function addMessage(text, type = "bot") {
   const chatbox = document.getElementById("chatbox");
 
@@ -32,14 +40,20 @@ function addMessage(text, type = "bot") {
   return msg;
 }
 
-function clickJoke() {
-  const chatbox = document.getElementById("chatbox");
+/* =========================
+   TYPING DOTS
+========================= */
+function showTyping() {
+  return addMessage("Typing...", "bot");
+}
 
-  const loadingMsg = addMessage("Typing...", "bot");
+/* =========================
+   MAIN FUNCTION
+========================= */
+function clickJoke() {
+  const typingMsg = showTyping();
 
   let category = document.getElementById("category").value;
-
-  let prompt = "";
 
   if (category === "dad") {
     prompt = "Tell a clean dad joke.";
@@ -54,7 +68,7 @@ function clickJoke() {
 
   axios.get(url)
     .then(res => {
-      loadingMsg.remove();
+      typingMsg.remove();
 
       let data = res.data;
 
@@ -62,23 +76,57 @@ function clickJoke() {
         ? data.joke
         : `${data.setup} 😂 ${data.delivery}`;
 
+      /* =========================
+         FILTER BAD JOKES
+      ========================= */
       if (!isSafe(joke)) {
         clickJoke();
         return;
       }
 
+      /* =========================
+         NO REPEATS SYSTEM
+      ========================= */
+      if (jokeHistory.includes(joke)) {
+        clickJoke();
+        return;
+      }
+
+      jokeHistory.push(joke);
+      localStorage.setItem("jokeHistory", JSON.stringify(jokeHistory));
+
       addMessage(joke, "bot");
 
-      document.getElementById("laugh-sound").play();
+      const sound = document.getElementById("laugh-sound");
+      if (sound) {
+        sound.play().catch(() => {});
+}
     })
     .catch(() => {
-      loadingMsg.textContent = "Oops 😬 Try again";
+      typingMsg.textContent = "Oops 😬 Try again";
     });
 }
 
+/* =========================
+   COPY BUTTON
+========================= */
 document.getElementById("copyBtn").addEventListener("click", () => {
-  const lastMessage = document.querySelectorAll(".message.bot");
-  const joke = lastMessage[lastMessage.length - 1]?.innerText;
+  const jokes = document.querySelectorAll(".message.bot");
 
-  navigator.clipboard.writeText(joke);
+  if (!jokes.length) return;
+
+  const lastJoke = jokes[jokes.length - 1].innerText;
+
+  navigator.clipboard.writeText(lastJoke);
 });
+
+/* =========================
+   DARK MODE TOGGLE
+========================= */
+const themeToggle = document.getElementById("themeToggle");
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+  });
+}
