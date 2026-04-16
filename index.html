@@ -13,24 +13,40 @@
 
   <body>
 
-    <h1>😂 Joke Generator</h1>
-
-    <select id="category">
-      <option value="funny">😂 Random</option>
-      <option value="dad">👨 Dad Jokes</option>
-      <option value="puns">🎯 Puns</option>
-    </select>
-
-    <button id="clickjokebutton">Tell me joke</button>
-
-    <div id="joke">Click the button to start 😄</div>
-
-    <button id="copyBtn">📋 Copy Joke</button>
-
-    <audio id="laugh-sound" src="https://www.soundjay.com/human/laugh-1.mp3" preload="auto"></audio>
-
-    <!-- ALWAYS load JS LAST -->
+    <div class="chat-app">
+  
+      <div class="top-bar">
+        <h1>😂 Joke AI</h1>
+  
+        <select id="category">
+          <option value="funny">Random</option>
+          <option value="dad">Dad Jokes</option>
+          <option value="puns">Puns</option>
+        </select>
+      </div>
+  
+      <!-- CHAT AREA -->
+      <div id="chatbox">
+        <div class="message bot">
+          Hi 👋 Click “Send” to get a joke!
+        </div>
+      </div>
+  
+      <!-- INPUT AREA -->
+      <div class="input-bar">
+  
+        <button id="clickjokebutton">Send</button>
+        <button id="copyBtn">Copy</button>
+  
+      </div>
+  
+      <audio id="laugh-sound"
+        src="https://www.soundjay.com/human/laugh-1.mp3"
+        preload="auto"></audio>
+  
+    </div>
+  
     <script src="src/index.js"></script>
-
+  
   </body>
 </html>

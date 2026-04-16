@@ -6,7 +6,8 @@ function isSafe(joke) {
     "drunk",
     "beer",
     "sex",
-    "gun"
+    "gun",
+    "shoot"
   ];
 
   return !bannedWords.some(word =>
@@ -18,56 +19,66 @@ document
   .getElementById("clickjokebutton")
   .addEventListener("click", clickJoke);
 
-function displayJoke(response) {
-  let data = response.data;
+function addMessage(text, type = "bot") {
+  const chatbox = document.getElementById("chatbox");
 
-  let joke = "";
+  const msg = document.createElement("div");
+  msg.classList.add("message", type);
+  msg.textContent = text;
 
-  if (data.joke) {
-    joke = data.joke;
-  } else {
-    joke = `${data.setup} 😂 ${data.delivery}`;
-  }
+  chatbox.appendChild(msg);
+  chatbox.scrollTop = chatbox.scrollHeight;
 
-  // safety filter
-  if (!isSafe(joke)) {
-    console.log("Unsafe joke filtered — retrying...");
-    clickJoke();
-    return;
-  }
-
-  document.querySelector("#joke").innerHTML = "";
-
-  new Typewriter("#joke", {
-    strings: joke,
-    autoStart: true,
-    cursor: "✨",
-    delay: 25,
-  });
+  return msg;
 }
 
 function clickJoke() {
-  document.querySelector("#joke").innerHTML =
-    "<div class='loader'></div>";
+  const chatbox = document.getElementById("chatbox");
+
+  const loadingMsg = addMessage("Typing...", "bot");
+
+  let category = document.getElementById("category").value;
+
+  let prompt = "";
+
+  if (category === "dad") {
+    prompt = "Tell a clean dad joke.";
+  } else if (category === "puns") {
+    prompt = "Tell a clean pun joke.";
+  } else {
+    prompt = "Tell a clean funny joke.";
+  }
 
   const url =
     "https://v2.jokeapi.dev/joke/Any?safe-mode&type=single,twopart";
 
-  axios
-    .get(url)
-    .then(displayJoke)
-    .catch((error) => {
-      console.log(error);
-      document.querySelector("#joke").innerHTML =
-        "Oops 😬 Try again!";
+  axios.get(url)
+    .then(res => {
+      loadingMsg.remove();
+
+      let data = res.data;
+
+      let joke = data.joke
+        ? data.joke
+        : `${data.setup} 😂 ${data.delivery}`;
+
+      if (!isSafe(joke)) {
+        clickJoke();
+        return;
+      }
+
+      addMessage(joke, "bot");
+
+      document.getElementById("laugh-sound").play();
+    })
+    .catch(() => {
+      loadingMsg.textContent = "Oops 😬 Try again";
     });
 }
 
-// COPY BUTTON
 document.getElementById("copyBtn").addEventListener("click", () => {
-  let jokeText = document.querySelector("#joke").innerText;
+  const lastMessage = document.querySelectorAll(".message.bot");
+  const joke = lastMessage[lastMessage.length - 1]?.innerText;
 
-  navigator.clipboard.writeText(jokeText).then(() => {
-    alert("Copied 😂");
-  });
+  navigator.clipboard.writeText(joke);
 });

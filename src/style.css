@@ -1,190 +1,119 @@
-/* =========================
-   BASE RESET
-========================= */
+/* RESET */
 * {
-    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    font-family: system-ui, Arial;
   }
   
+  /* PAGE */
   body {
-    font-family: Arial, Helvetica, sans-serif;
-    min-height: 100vh;
-  
+    background: #0f172a;
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
-    gap: 20px;
-  
-    padding: 20px;
-  
-    /* CLEAN PREMIUM BACKGROUND */
-    background: linear-gradient(
-      135deg,
-      #f7f7fb 0%,
-      #eef1f6 100%
-    );
-  }
-  /* =========================
-     APP CONTAINER LOOK
-  ========================= */
-  body::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      circle at top,
-      rgba(99, 102, 241, 0.08),
-      transparent 60%
-    );
-    z-index: 0;
-    pointer-events: none;
+    min-height: 100vh;
   }
   
-  /* =========================
-     CARD WRAPPER (we fake it using body children)
-  ========================= */
-  button,
-  #joke {
-    position: relative;
-    z-index: 1;
-  }
+  /* APP WRAPPER */
+  .chat-app {
+    width: 100%;
+    max-width: 420px;
+    height: 85vh;
   
-  /* center layout */
-  body {
-    flex-direction: column;
-    gap: 25px;
-    text-align: center;
-  }
-  
-  /* =========================
-     TITLE FEEL (optional if you add later)
-  ========================= */
-  h1 {
-    color: white;
-    font-size: 28px;
-    margin-bottom: 10px;
-  }
-  
-  /* =========================
-     BUTTON STYLING
-  ========================= */
-  button {
     background: #111827;
+    border-radius: 20px;
+  
+    display: flex;
+    flex-direction: column;
+  
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  
+  /* TOP BAR */
+  .top-bar {
+    padding: 15px;
+    background: #1f2937;
     color: white;
   
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .top-bar h1 {
+    font-size: 18px;
+  }
+  
+  /* SELECT */
+  select {
+    padding: 6px 10px;
+    border-radius: 10px;
     border: none;
-    padding: 14px 22px;
+    font-size: 13px;
+  }
+  
+  /* CHAT BOX */
+  #chatbox {
+    flex: 1;
+    padding: 15px;
+  
+    overflow-y: auto;
+  
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* MESSAGES */
+  .message {
+    padding: 12px 14px;
+    border-radius: 14px;
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  /* BOT */
+  .bot {
+    background: #374151;
+    color: white;
+    align-self: flex-start;
+  }
+  
+  /* USER (future-ready) */
+  .user {
+    background: #3b82f6;
+    color: white;
+    align-self: flex-end;
+  }
+  
+  /* INPUT BAR */
+  .input-bar {
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    background: #1f2937;
+  }
+  
+  /* BUTTONS */
+  button {
+    flex: 1;
+    padding: 10px;
+    border: none;
     border-radius: 12px;
   
-    font-size: 15px;
-    font-weight: 600;
+    background: #3b82f6;
+    color: white;
   
     cursor: pointer;
+    font-weight: 600;
   
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-  
-    transition: all 0.25s ease;
+    transition: 0.2s;
   }
   
   button:hover {
-    background: #1f2937;
+    background: #2563eb;
     transform: translateY(-2px);
-  }
-  
-  button:active {
-    transform: scale(0.98);
-  }
-  
-  /* =========================
-     JOKE DISPLAY BOX
-  ========================= */
-  #joke {
-    border: 1px solid rgba(0,0,0,0.06);
-  
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(14px);
-  
-    color: #1f2937;
-  
-    padding: 25px 20px;
-    border-radius: 16px;
-  
-    max-width: 500px;
-    width: 100%;
-  
-    font-size: 18px;
-    line-height: 1.6;
-  
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-  
-    min-height: 100px;
-  
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  /* =========================
-     MOBILE RESPONSIVE
-  ========================= */
-  @media (max-width: 600px) {
-    button {
-      width: 100%;
-      font-size: 15px;
-    }
-  
-    #joke {
-      font-size: 16px;
-      padding: 20px;
-    }
-  }
-
-  .loader {
-    border: 4px solid rgba(255,255,255,0.3);
-    border-top: 4px solid white;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    animation: spin 1s linear infinite;
-    margin: auto;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  select {
-    padding: 10px 14px;
-    border-radius: 10px;
-  
-    border: 1px solid rgba(0,0,0,0.08);
-    background: white;
-  
-    font-size: 14px;
-  
-    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-  }
-  /* group spacing */
-  select, button {
-    min-width: 200px;
-  }
-  
-  /* soft app card feel */
-  #joke {
-    transition: all 0.3s ease;
-  }
-  
-  /* nicer hover state for whole UI */
-  button:focus, select:focus {
-    outline: none;
-    transform: scale(1.02);
-  }
-  
-  /* COPY BUTTON DIFFERENT STYLE */
-  #copyBtn {
-    background: rgba(255,255,255,0.85);
-    color: #222;
   }
