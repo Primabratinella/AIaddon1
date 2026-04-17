@@ -1,3 +1,11 @@
+let voiceEnabled = true;
+let isTyping = false;
+
+const offlineJokes = [
+  "Why don’t eggs tell jokes? They’d crack each other up 😂",
+  "I told my computer I needed a break… it said no problem 😅",
+  "Why did the math book look sad? Too many problems 📚"
+];
 function isSafe(joke) {
   const bannedWords = [
     "stupid",
@@ -61,16 +69,44 @@ if (favBtn) {
     }
   });
 }
+
+const voiceToggle = document.getElementById("voiceToggle");
+
+if (voiceToggle) {
+  voiceToggle.addEventListener("click", () => {
+    voiceEnabled = !voiceEnabled;
+
+    voiceToggle.textContent = voiceEnabled
+      ? "🔊 Voice: ON"
+      : "🔇 Voice: OFF";
+
+    // stop any current speech immediately
+    if (!voiceEnabled) {
+      window.speechSynthesis.cancel();
+    }
+  });
+}
 /* =========================
    CHAT MESSAGE FUNCTION
 ========================= */
 function addMessage(text, type = "bot") {
   const msg = document.createElement("div");
   msg.classList.add("message", type);
-  msg.textContent = text;
+
+  // better formatting for chat feel
+  msg.innerHTML = `
+    <div class="bubble">${text}</div>
+  `;
 
   chatbox.appendChild(msg);
-  chatbox.scrollTop = chatbox.scrollHeight;
+
+  if (navigator.vibrate) {
+    navigator.vibrate(20);
+  }
+
+  setTimeout(() => {
+    scrollToBottom();
+  }, 50);
 
   return msg;
 }
@@ -83,7 +119,7 @@ function showTyping() {
   msg.classList.add("message", "bot");
 
   msg.innerHTML = `
-    <div class="typing">
+    <div class="bubble typing-bubble">
       <span></span>
       <span></span>
       <span></span>
@@ -91,7 +127,7 @@ function showTyping() {
   `;
 
   chatbox.appendChild(msg);
-  chatbox.scrollTop = chatbox.scrollHeight;
+  scrollToBottom();
 
   return msg;
 }
@@ -99,7 +135,19 @@ function showTyping() {
 /* =========================
    MAIN FUNCTION (AI JOKES)
 ========================= */
+function scrollToBottom() {
+  chatbox.scrollTo({
+    top: chatbox.scrollHeight,
+    behavior: "smooth"
+  });
+}
 async function clickJoke() {
+
+  if (isTyping) return;
+  isTyping = true;
+
+  let retries = 0;
+
   const typingMsg = showTyping();
 
   const kidMode = document.getElementById("kidMode")?.checked;
@@ -115,21 +163,39 @@ async function clickJoke() {
 
     joke = joke.trim();
 
-    if (!isSafe(joke)) return clickJokeRetry();
+    if (!isSafe(joke) || jokeHistory.includes(joke)) {
+      if (retries < 3) {
+        retries++;
+        return clickJokeRetry();
+      }
+      
+      retries = 0;
+      addMessage("Couldn't find a good joke 😅 Try again", "bot");
+      return;
+    }
 
-    if (jokeHistory.includes(joke)) return clickJokeRetry();
+    retries = 0;
 
     jokeHistory.push(joke);
+    jokeHistory = jokeHistory.slice(-30);
     localStorage.setItem("jokeHistory", JSON.stringify(jokeHistory));
 
     addMessage(joke, "bot");
 
     if (sound) sound.play().catch(() => {});
-
-    speakJoke(joke);
+    if (voiceEnabled) {
+      speakJoke(joke);
+      isTyping = false;
+    }
 
   } catch (err) {
-    typingMsg.textContent = "Oops 😬 Try again";
+    isTyping = false;
+    typingMsg.remove();
+
+    const fallback =
+      offlineJokes[Math.floor(Math.random() * offlineJokes.length)];
+
+    addMessage(fallback, "bot");
   }
 }
 
@@ -137,8 +203,8 @@ async function clickJoke() {
    SAFE RETRY (PREVENT LOOP CRASH)
 ========================= */
 function clickJokeRetry() {
-  setTimeout(() => 
-    clickJoke(), 300);
+  isTyping = false;
+  setTimeout(() => clickJoke(), 300);
 }
 
 /* =========================
@@ -182,3 +248,76 @@ async function fetchAIJoke(prompt) {
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }
+
+
+let deferredPrompt;
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  const btn = document.createElement("button");
+  btn.innerText = "⬇ Install App";
+  btn.style.position = "fixed";
+  btn.style.bottom = "90px";
+  btn.style.right = "16px";
+  btn.style.zIndex = "9999";
+  btn.style.padding = "10px 14px";
+  btn.style.borderRadius = "12px";
+  btn.style.border = "none";
+  btn.style.background = "#3b82f6";
+  btn.style.color = "white";
+
+  document.body.appendChild(btn);
+
+  btn.onclick = async () => {
+    deferredPrompt.prompt();
+    const choice = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    btn.remove();
+  };
+});
+
+const historyBtn = document.getElementById("historyBtn");
+const historyModal = document.getElementById("historyModal");
+const historyList = document.getElementById("historyList");
+const closeHistory = document.getElementById("closeHistory");
+const clearHistory = document.getElementById("clearHistory");
+
+function renderHistory() {
+  historyList.innerHTML = "";
+
+  if (jokeHistory.length === 0) {
+    historyList.innerHTML = "<p>No jokes yet 😅</p>";
+    return;
+  }
+
+  jokeHistory.slice().reverse().forEach(joke => {
+    const div = document.createElement("div");
+    div.classList.add("message", "bot");
+    div.textContent = joke;
+    historyList.appendChild(div);
+  });
+}
+
+if (historyBtn) {
+  historyBtn.addEventListener("click", () => {
+    renderHistory();
+    historyModal.classList.remove("hidden");
+  });
+}
+
+if (closeHistory) {
+  closeHistory.addEventListener("click", () => {
+    historyModal.classList.add("hidden");
+  });
+}
+
+if (clearHistory) {
+  clearHistory.addEventListener("click", () => {
+    jokeHistory = [];
+    localStorage.removeItem("jokeHistory");
+    renderHistory();
+  });
+}
+
