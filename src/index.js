@@ -20,16 +20,51 @@ function isSafe(joke) {
 let jokeHistory =
   JSON.parse(localStorage.getItem("jokeHistory")) || [];
 
-document
-  .getElementById("clickjokebutton")
-  .addEventListener("click", clickJoke);
+let favorites =
+  JSON.parse(localStorage.getItem("favorites")) || [];
 
+/* =========================
+   ELEMENTS
+========================= */
+const button = document.getElementById("clickjokebutton");
+const copyBtn = document.getElementById("copyBtn");
+const chatbox = document.getElementById("chatbox");
+const sound = document.getElementById("laugh-sound");
+const favBtn = document.getElementById("favBtn");
+
+/* =========================
+   EVENT LISTENERS (SAFE)
+========================= */
+if (button) button.addEventListener("click", clickJoke);
+
+if (copyBtn) {
+  copyBtn.addEventListener("click", () => {
+    const jokes = document.querySelectorAll(".message.bot");
+    if (!jokes.length) return;
+
+    const lastJoke = jokes[jokes.length - 1].innerText;
+    navigator.clipboard.writeText(lastJoke);
+  });
+}
+
+if (favBtn) {
+  favBtn.addEventListener("click", () => {
+    const jokes = document.querySelectorAll(".message.bot");
+    if (!jokes.length) return;
+
+    const lastJoke = jokes[jokes.length - 1].innerText;
+
+    if (!favorites.includes(lastJoke)) {
+      favorites.push(lastJoke);
+      localStorage.setItem("favorites", JSON.stringify(favorites));
+      alert("Saved ⭐");
+    }
+  });
+}
 /* =========================
    CHAT MESSAGE FUNCTION
 ========================= */
 function addMessage(text, type = "bot") {
-  const chatbox = document.getElementById("chatbox");
-
   const msg = document.createElement("div");
   msg.classList.add("message", type);
   msg.textContent = text;
@@ -41,92 +76,109 @@ function addMessage(text, type = "bot") {
 }
 
 /* =========================
-   TYPING DOTS
+   TYPING ANIMATION
 ========================= */
 function showTyping() {
-  return addMessage("Typing...", "bot");
+  const msg = document.createElement("div");
+  msg.classList.add("message", "bot");
+
+  msg.innerHTML = `
+    <div class="typing">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  `;
+
+  chatbox.appendChild(msg);
+  chatbox.scrollTop = chatbox.scrollHeight;
+
+  return msg;
 }
 
 /* =========================
-   MAIN FUNCTION
+   MAIN FUNCTION (AI JOKES)
 ========================= */
-function clickJoke() {
+async function clickJoke() {
   const typingMsg = showTyping();
 
-  let category = document.getElementById("category").value;
+  const kidMode = document.getElementById("kidMode")?.checked;
 
-  if (category === "dad") {
-    prompt = "Tell a clean dad joke.";
-  } else if (category === "puns") {
-    prompt = "Tell a clean pun joke.";
-  } else {
-    prompt = "Tell a clean funny joke.";
+  const prompt = kidMode
+    ? "Tell a clean, funny, kid-safe joke suitable for families."
+    : "Tell a funny clean joke.";
+
+  try {
+    let joke = await fetchAIJoke(prompt);
+
+    typingMsg.remove();
+
+    joke = joke.trim();
+
+    if (!isSafe(joke)) return clickJokeRetry();
+
+    if (jokeHistory.includes(joke)) return clickJokeRetry();
+
+    jokeHistory.push(joke);
+    localStorage.setItem("jokeHistory", JSON.stringify(jokeHistory));
+
+    addMessage(joke, "bot");
+
+    if (sound) sound.play().catch(() => {});
+
+    speakJoke(joke);
+
+  } catch (err) {
+    typingMsg.textContent = "Oops 😬 Try again";
   }
-
-  const url =
-    "https://v2.jokeapi.dev/joke/Any?safe-mode&type=single,twopart";
-
-  axios.get(url)
-    .then(res => {
-      typingMsg.remove();
-
-      let data = res.data;
-
-      let joke = data.joke
-        ? data.joke
-        : `${data.setup} 😂 ${data.delivery}`;
-
-      /* =========================
-         FILTER BAD JOKES
-      ========================= */
-      if (!isSafe(joke)) {
-        clickJoke();
-        return;
-      }
-
-      /* =========================
-         NO REPEATS SYSTEM
-      ========================= */
-      if (jokeHistory.includes(joke)) {
-        clickJoke();
-        return;
-      }
-
-      jokeHistory.push(joke);
-      localStorage.setItem("jokeHistory", JSON.stringify(jokeHistory));
-
-      addMessage(joke, "bot");
-
-      const sound = document.getElementById("laugh-sound");
-      if (sound) {
-        sound.play().catch(() => {});
-}
-    })
-    .catch(() => {
-      typingMsg.textContent = "Oops 😬 Try again";
-    });
 }
 
 /* =========================
-   COPY BUTTON
+   SAFE RETRY (PREVENT LOOP CRASH)
 ========================= */
-document.getElementById("copyBtn").addEventListener("click", () => {
-  const jokes = document.querySelectorAll(".message.bot");
-
-  if (!jokes.length) return;
-
-  const lastJoke = jokes[jokes.length - 1].innerText;
-
-  navigator.clipboard.writeText(lastJoke);
-});
+function clickJokeRetry() {
+  setTimeout(() => 
+    clickJoke(), 300);
+}
 
 /* =========================
-   DARK MODE TOGGLE
+   TEXT TO SPEECH
 ========================= */
-const themeToggle = document.getElementById("themeToggle");
+function speakJoke(text) {
+  const speech = new SpeechSynthesisUtterance(
+    text.replace("😂", "... 😂")
+  );
 
-if (themeToggle) {
-  themeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-  });
+  speech.lang = "en-US";
+  speech.rate = 0.85;
+  speech.pitch = 1;
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(speech);
+}
+
+/* =========================
+   AI API
+========================= */
+async function fetchAIJoke(prompt) {
+  const apiKey = "a08f0oc3b4t11e51a8dbab6fef7e5923";
+
+  const response = await axios.get(
+    "https://api.shecodes.io/ai/v1/generate",
+    {
+      params: {
+        prompt,
+        context: "You are a funny, clean, kid-safe comedian.",
+        key: apiKey
+      }
+    }
+  );
+  return response.data.answer;
+}
+
+/* =========================
+   SERVICE WORKER (PWA READY)
+========================= */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
 }

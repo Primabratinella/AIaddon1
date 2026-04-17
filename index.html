@@ -8,49 +8,54 @@
 
     <link href="src/style.css" rel="stylesheet" type="text/css" />
 
+    <link rel="manifest" href="manifest.json">
+
     <title>Are You Kidding Me</title>
     
   </head>
 
   <body>
 
-    <div class="top-bar">
-
-      <h1>😂 Joke AI</h1>
+      <div class="chat-app">
     
-      <div class="controls">
-        
-        <select id="category">
-          <option value="funny">Random</option>
-          <option value="dad">Dad Jokes</option>
-          <option value="puns">Puns</option>
-        </select>
+        <!-- TOP BAR -->
+        <div class="top-bar">
     
-        <button id="themeToggle">🌙</button>
-      </div>
+          <h1> Are you kidding me?</h1>
     
-    </div>
-  
-      <!-- CHAT AREA -->
-      <div id="chatbox">
-        <div class="message bot">
-          Hi 👋 Click “Send” to get a joke!
+          <div class="controls">
+            <label class="toggle">
+              <input type="checkbox" id="kidMode" checked />
+              <span>👶 Kid Mode</span>
+            </label>
+    
+            <button id="themeToggle">🌙</button>
+          </div>
+    
+        </div>
+    
+        <!-- CHAT AREA -->
+        <div id="chatbox">
+          <div class="message bot">
+            Hi 👋 Click "Tell me a joke" to start!
+          </div>
+        </div>
+    
+        <!-- INPUT AREA -->
+        <div class="input-bar">
+          <button id="clickjokebutton">Tell me joke</button>
+          <button id="copyBtn">Copy</button>
+          <button id="favBtn">⭐</button>
         </div>
       </div>
-  
-      <!-- INPUT AREA -->
-      <div class="input-bar">
-        <button id="clickjokebutton">Tell me joke</button>
-        <button id="copyBtn">Copy</button>
-      </div>
-  
+    
+      <!-- AUDIO -->
       <audio id="laugh-sound"
         src="https://www.soundjay.com/human/laugh-1.mp3"
         preload="auto"></audio>
-  
-    </div>
-  
-    <script src="src/index.js"></script>
-  
+    
+      <script src="src/index.js"></script>
+    
   </body>
 </html>
+
