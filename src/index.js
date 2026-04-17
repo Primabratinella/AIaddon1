@@ -1,5 +1,7 @@
-let voiceEnabled = true;
+let voiceEnabled = JSON.parse(localStorage.getItem("voice")) ?? true;
 let isTyping = false;
+let retries = 0;
+
 
 const offlineJokes = [
   "Why don’t eggs tell jokes? They’d crack each other up 😂",
@@ -76,6 +78,8 @@ if (voiceToggle) {
   voiceToggle.addEventListener("click", () => {
     voiceEnabled = !voiceEnabled;
 
+    localStorage.setItem("voice", JSON.stringify(voiceEnabled));
+
     voiceToggle.textContent = voiceEnabled
       ? "🔊 Voice: ON"
       : "🔇 Voice: OFF";
@@ -146,8 +150,6 @@ async function clickJoke() {
   if (isTyping) return;
   isTyping = true;
 
-  let retries = 0;
-
   const typingMsg = showTyping();
 
   const kidMode = document.getElementById("kidMode")?.checked;
@@ -166,11 +168,13 @@ async function clickJoke() {
     if (!isSafe(joke) || jokeHistory.includes(joke)) {
       if (retries < 3) {
         retries++;
+        isTyping = false; 
         return clickJokeRetry();
       }
       
       retries = 0;
       addMessage("Couldn't find a good joke 😅 Try again", "bot");
+      isTyping = false;
       return;
     }
 
@@ -185,7 +189,6 @@ async function clickJoke() {
     if (sound) sound.play().catch(() => {});
     if (voiceEnabled) {
       speakJoke(joke);
-      isTyping = false;
     }
 
   } catch (err) {
@@ -197,6 +200,7 @@ async function clickJoke() {
 
     addMessage(fallback, "bot");
   }
+  isTyping = false;
 }
 
 /* =========================
@@ -249,35 +253,6 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }
 
-
-let deferredPrompt;
-
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-
-  const btn = document.createElement("button");
-  btn.innerText = "⬇ Install App";
-  btn.style.position = "fixed";
-  btn.style.bottom = "90px";
-  btn.style.right = "16px";
-  btn.style.zIndex = "9999";
-  btn.style.padding = "10px 14px";
-  btn.style.borderRadius = "12px";
-  btn.style.border = "none";
-  btn.style.background = "#3b82f6";
-  btn.style.color = "white";
-
-  document.body.appendChild(btn);
-
-  btn.onclick = async () => {
-    deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    btn.remove();
-  };
-});
-
 const historyBtn = document.getElementById("historyBtn");
 const historyModal = document.getElementById("historyModal");
 const historyList = document.getElementById("historyList");
@@ -322,6 +297,7 @@ if (clearHistory) {
 }
 
 let deferredPrompt;
+
 const installBtn = document.createElement("button");
 
 installBtn.innerText = "⬇ Install App";
