@@ -321,3 +321,37 @@ if (clearHistory) {
   });
 }
 
+let deferredPrompt;
+const installBtn = document.createElement("button");
+
+installBtn.innerText = "⬇ Install App";
+installBtn.style.position = "fixed";
+installBtn.style.bottom = "90px";
+installBtn.style.right = "16px";
+installBtn.style.padding = "12px 16px";
+installBtn.style.borderRadius = "999px";
+installBtn.style.border = "none";
+installBtn.style.background = "#3b82f6";
+installBtn.style.color = "white";
+installBtn.style.fontWeight = "600";
+installBtn.style.boxShadow = "0 10px 30px rgba(0,0,0,0.3)";
+installBtn.style.zIndex = "9999";
+installBtn.style.display = "none";
+
+document.body.appendChild(installBtn);
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.style.display = "block";
+});
+
+installBtn.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+
+  deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
+
+  deferredPrompt = null;
+  installBtn.style.display = "none";
+});

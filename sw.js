@@ -1,60 +1,37 @@
-const CACHE_NAME = "joke-ai-v1";
+const CACHE_NAME = "joke-ai-v2";
 
 const ASSETS = [
-  "/",
-  "/index.html",
-  "/src/style.css",
-  "/src/index.js",
-  "/manifest.json",
-  "/icon-192.png",
-  "/icon-512.png"
-];
+    "/AIaddon1/",
+    "/AIaddon1/index.html",
+    "/AIaddon1/src/style.css",
+    "/AIaddon1/src/index.js",
+    "/AIaddon1/manifest.json",
+    "/AIaddon1/icon-192.png",
+    "/AIaddon1/icon-512.png"
+  ];
 
-/* =========================
-   INSTALL (CACHE FILES)
-========================= */
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
   self.skipWaiting();
 });
 
-/* =========================
-   ACTIVATE (CLEAN OLD CACHE)
-========================= */
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
+        keys.map((key) => key !== CACHE_NAME && caches.delete(key))
       )
     )
   );
   self.clients.claim();
 });
 
-/* =========================
-   FETCH (OFFLINE-FIRST STRATEGY)
-========================= */
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return (
-        cached ||
-        fetch(event.request).catch(() => {
-          // optional offline fallback
-          if (event.request.destination === "document") {
-            return caches.match("/index.html");
-          }
-        })
-      );
-    })
+    fetch(event.request).catch(() =>
+      caches.match(event.request).then((res) => res || caches.match("/"))
+    )
   );
 });
